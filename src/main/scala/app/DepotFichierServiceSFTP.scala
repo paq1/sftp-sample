@@ -1,6 +1,8 @@
 package app
 
 import akka.util.ByteString
+import com.typesafe.config.Config
+import core.SftpService
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.SFTPClient
 
@@ -8,10 +10,15 @@ import java.nio.ByteBuffer
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class DepotFichierServiceSFTP()(implicit ec: ExecutionContext) extends ServerData {
+class DepotFichierServiceSFTP(
+    override val conf: Config
+)(implicit ec: ExecutionContext)
+    extends ServerData
+    with SftpService[SFTPClient] {
 
   def connection(): Future[SFTPClient] = {
     Try {
+      println(host)
       val sshClient = new SSHClient()
       sshClient.addHostKeyVerifier(sshKey)
       sshClient.connect(host)
@@ -19,7 +26,7 @@ class DepotFichierServiceSFTP()(implicit ec: ExecutionContext) extends ServerDat
       sshClient.newSFTPClient()
     } match {
       case Failure(exception) => Future.failed(exception)
-      case Success(value) => Future.successful(value)
+      case Success(value)     => Future.successful(value)
     }
   }
 
@@ -36,6 +43,5 @@ class DepotFichierServiceSFTP()(implicit ec: ExecutionContext) extends ServerDat
       } else {
         Future(ByteString(buffer.array()).utf8String)
       }
-    }
-      .flatten
+    }.flatten
 }
