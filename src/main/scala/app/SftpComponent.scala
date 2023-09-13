@@ -3,6 +3,7 @@ package app
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NonFatal
+
 trait SftpComponent { self: MainComponent =>
   val service: DepotFichierServiceSFTP = new DepotFichierServiceSFTP(conf)
 
