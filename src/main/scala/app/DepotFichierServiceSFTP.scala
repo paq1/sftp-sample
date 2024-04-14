@@ -16,17 +16,16 @@ class DepotFichierServiceSFTP(
     extends ServerData
     with SftpService[SFTPClient] {
 
-  def connection(): Future[SFTPClient] = {
-    Try {
-      println(host)
-      val sshClient = new SSHClient()
-      sshClient.addHostKeyVerifier(sshKey)
-      sshClient.connect(host)
-      sshClient.authPassword(user, mdp)
-      sshClient.newSFTPClient()
-    } match {
-      case Failure(exception) => Future.failed(exception)
-      case Success(value)     => Future.successful(value)
+  def connection(): Future[Try[SFTPClient]] = {
+    Future.successful {
+      Try {
+        println(host)
+        val sshClient = new SSHClient()
+        sshClient.addHostKeyVerifier(sshKey)
+        sshClient.connect(host, 22)
+        sshClient.authPassword(user, mdp)
+        sshClient.newSFTPClient()
+      }
     }
   }
 
